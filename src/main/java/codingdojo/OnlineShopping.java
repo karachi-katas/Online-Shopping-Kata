@@ -46,12 +46,11 @@ public class OnlineShopping {
             return;
         }
 
-        ArrayList<Item> newItems = new ArrayList<>();
         long weight = 0;
         for(Item item: cart.filterItems("EVENT")) {
             cart.markAsUnavailable(item);
             if (storeToSwitchTo.hasItem(item)) {
-                newItems.add(storeToSwitchTo.getItem(item.getName()));
+                cart.addItem(storeToSwitchTo.getItem(item.getName()));
             }
             weight += item.getWeight();
         }
@@ -68,31 +67,31 @@ public class OnlineShopping {
         }
 
         Store currentStore = (Store) session.get("STORE");
-        if (deliveryInformation != null
-                && deliveryInformation.getType() != null
-                && "HOME_DELIVERY".equals(deliveryInformation.getType())
-                && deliveryInformation.getDeliveryAddress() != null) {
-            if (!((LocationService) session.get("LOCATION_SERVICE")).isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
+        if(deliveryInformation == null || deliveryInformation.getDeliveryAddress() == null) {
+            return;
+        }
+
+        if (isTypeHomeDelivery(deliveryInformation)) {
+            deliveryInformation.setTotalWeight(weight);
+            deliveryInformation.setPickupLocation(storeToSwitchTo);
+            if (!isLocationServiceAvailable(storeToSwitchTo, deliveryInformation)) {
                 deliveryInformation.setType("PICKUP");
                 deliveryInformation.setPickupLocation(currentStore);
-            } else {
-                deliveryInformation.setTotalWeight(weight);
-                deliveryInformation.setPickupLocation(storeToSwitchTo);
             }
-        } else {
-            if (deliveryInformation != null
-                    && deliveryInformation.getDeliveryAddress() != null) {
-                if (((LocationService) session.get("LOCATION_SERVICE")).isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
-                    deliveryInformation.setType("HOME_DELIVERY");
-                    deliveryInformation.setTotalWeight(weight);
-                    deliveryInformation.setPickupLocation(storeToSwitchTo);
+        } else if (isLocationServiceAvailable(storeToSwitchTo, deliveryInformation)) {
+            deliveryInformation.setType("HOME_DELIVERY");
+            deliveryInformation.setTotalWeight(weight);
+            deliveryInformation.setPickupLocation(storeToSwitchTo);
+        }
+    }
 
-                }
-            }
-        }
-        for (Item item : newItems) {
-            cart.addItem(item);
-        }
+    private boolean isLocationServiceAvailable(Store storeToSwitchTo, DeliveryInformation deliveryInformation) {
+        return ((LocationService) session.get("LOCATION_SERVICE")).isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress());
+    }
+
+    private boolean isTypeHomeDelivery(DeliveryInformation deliveryInformation) {
+        return deliveryInformation.getType() != null
+                && "HOME_DELIVERY".equals(deliveryInformation.getType());
     }
 
     private void saveStoreSession(Store storeToSwitchTo) {
