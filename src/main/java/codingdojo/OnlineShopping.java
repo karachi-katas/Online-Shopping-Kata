@@ -30,18 +30,7 @@ public class OnlineShopping {
         Cart cart = (Cart) session.get("CART");
         DeliveryInformation deliveryInformation = (DeliveryInformation) session.get("DELIVERY_INFO");
         if (storeToSwitchTo == null) {
-            if (cart != null) {
-                for (Item item : cart.getItems()) {
-                    if ("EVENT".equals(item.getType())) {
-                        cart.markAsUnavailable(item);
-                    }
-                }
-
-            }
-            if (deliveryInformation != null) {
-                deliveryInformation.setType("SHIPPING");
-                deliveryInformation.setPickupLocation(null);
-            }
+            storeToSwitchIsNull(cart, deliveryInformation);
         } else {
             if (cart != null) {
                 ArrayList<Item> newItems = new ArrayList<>();
@@ -93,6 +82,21 @@ public class OnlineShopping {
         }
         session.put("STORE", storeToSwitchTo);
         session.saveAll();
+    }
+
+    private void storeToSwitchIsNull(Cart cart, DeliveryInformation deliveryInformation) {
+        if (cart != null) {
+            for (Item item : cart.getItems()) {
+                if ("EVENT".equals(item.getType())) {
+                    cart.markAsUnavailable(item);
+                }
+            }
+
+        }
+        if (deliveryInformation != null) {
+            deliveryInformation.setType("SHIPPING");
+            deliveryInformation.setPickupLocation(null);
+        }
     }
 
     @Override
