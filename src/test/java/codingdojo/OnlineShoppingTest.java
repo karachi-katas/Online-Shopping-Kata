@@ -1,5 +1,7 @@
 package codingdojo;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -58,9 +60,13 @@ public class OnlineShoppingTest {
         session.put("CART", cart);
         OnlineShopping shopping = new OnlineShopping(session);
 
+//        Store store = new S;
+//
+//        shopping.switchStore(store);
+
         // TODO: make this test work
-        // shopping.switchStore(backaplan);
-        // assertEquals("DRONE", ((DeliveryInformation)session.get("DELIVERY_INFO")).getType());
+         shopping.switchStore(backaplan);
+         assertEquals("DRONE", ((DeliveryInformation)session.get("DELIVERY_INFO")).getType());
 
     }
 

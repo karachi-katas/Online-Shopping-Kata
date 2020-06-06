@@ -1,8 +1,9 @@
 package codingdojo;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
-public class Items {
+public class Items  implements Iterable<Item>{
     private ArrayList<Item> items = new ArrayList<>();
 
     public void addItem(Item item) {
@@ -25,5 +26,10 @@ public class Items {
 
     public ArrayList<Item> getItems() {
         return items;
+    }
+
+    @Override
+    public Iterator<Item> iterator() {
+        return items.iterator();
     }
 }
