@@ -61,11 +61,8 @@ public class OnlineShoppingTest {
         OnlineShopping shopping = new OnlineShopping(session);
 
         // TODO: make this test work
-        // shopping.switchStore(backaplan);
-        // assertEquals("DRONE", ((DeliveryInformation)session.get("DELIVERY_INFO")).getType());
-
+//         shopping.switchStore(backaplan);
+//         assertEquals("DRONE", ((DeliveryInformation)session.get("DELIVERY_INFO")).getType());
     }
-
-
 
 }

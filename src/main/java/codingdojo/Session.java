@@ -10,7 +10,6 @@ import java.util.Map;
  */
 public class Session {
 
-
     private final Map<String, ModelObject> session;
 
     public Session() {

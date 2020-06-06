@@ -30,10 +30,11 @@ public class OnlineShopping {
         Cart cart = (Cart) session.get("CART");
         DeliveryInformation deliveryInformation = (DeliveryInformation) session.get("DELIVERY_INFO");
 
-        whenSwitchingToNullStoreMarkTicketsUnavailable(storeToSwitchTo, cart);
+        if (cart != null) {
+            cart.invalidateTickets();
+        }
 
         shipItemIfDeliverInformationGivenAndStoreIsNull(storeToSwitchTo, deliveryInformation);
-
 
         if (storeToSwitchTo != null && cart != null) {
             ArrayList<Item> newItems = new ArrayList<>();
@@ -45,8 +46,7 @@ public class OnlineShopping {
                     cart.markAsUnavailable(item);
                 }
                 else if ("EVENT".equals(item.getType())) {
-                    cart.markAsUnavailable(item);
-                    newItems.add(storeToSwitchTo.getItem(item.getName()));
+                    cart.addItem(item);
                 }
             }
 
@@ -54,57 +54,37 @@ public class OnlineShopping {
 
             Store currentStore = (Store) session.get("STORE");
             setDeliveryInformationAccordingToType(storeToSwitchTo, deliveryInformation, weight, currentStore);
-            for (Item item : newItems) {
-                cart.addItem(item);
-            }
         }
-
 
         session.put("STORE", storeToSwitchTo);
         session.saveAll();
     }
 
-    private void setDeliveryInformationAccordingToType(Store storeToSwitchTo, DeliveryInformation deliveryInformation, long weight, Store currentStore) {
-        if (deliveryInformation != null && deliveryInformation.isReadyForHomeDelivery()) {
-            LocationService locationService = (LocationService) session.get("LOCATION_SERVICE");
-            setPickupLocation(storeToSwitchTo, deliveryInformation, weight, currentStore, locationService);
-            return;
+    private void setDeliveryInformationAccordingToType(Store store, DeliveryInformation deliveryInformation, long weight, Store currentStore) {
+        LocationService locationService = (LocationService) session.get("LOCATION_SERVICE");
+
+        if (deliveryInformation == null) return;
+
+        if (deliveryInformation.getType() == null) {
+            deliveryInformation.setType("HOME_DELIVERY");
         }
-        if (deliveryInformation != null
-                && deliveryInformation.getDeliveryAddress() != null) {
-            if (((LocationService) session.get("LOCATION_SERVICE")).isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
-                deliveryInformation.setType("HOME_DELIVERY");
+
+        if (deliveryInformation.isDeliveryAddressProvided()) {
+            if (locationService.isWithinDeliveryRange(store, deliveryInformation.getDeliveryAddress())) {
                 deliveryInformation.setTotalWeight(weight);
-                deliveryInformation.setPickupLocation(storeToSwitchTo);
-
+                deliveryInformation.setPickupLocation(store);
+                return;
             }
-        }
-    }
 
-    private void setPickupLocation(Store storeToSwitchTo, DeliveryInformation deliveryInformation, long weight, Store currentStore, LocationService locationService) {
-        if ((locationService).isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
-            deliveryInformation.setTotalWeight(weight);
-            deliveryInformation.setPickupLocation(storeToSwitchTo);
-            return;
+            deliveryInformation.setType("PICKUP");
+            deliveryInformation.setPickupLocation(currentStore);
         }
-        deliveryInformation.setType("PICKUP");
-        deliveryInformation.setPickupLocation(currentStore);
     }
 
     private void shipItemIfDeliverInformationGivenAndStoreIsNull(Store storeToSwitchTo, DeliveryInformation deliveryInformation) {
         if (storeToSwitchTo == null && deliveryInformation != null) {
             deliveryInformation.setType("SHIPPING");
             deliveryInformation.setPickupLocation(null);
-        }
-    }
-
-    private void whenSwitchingToNullStoreMarkTicketsUnavailable(Store storeToSwitchTo, Cart cart) {
-        if (storeToSwitchTo == null && cart != null) {
-            for (Item item : cart.getItems()) {
-                if ("EVENT".equals(item.getType())) {
-                    cart.markAsUnavailable(item);
-                }
-            }
         }
     }
 

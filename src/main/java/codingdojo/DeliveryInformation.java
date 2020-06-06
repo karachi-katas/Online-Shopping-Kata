@@ -41,6 +41,10 @@ public class DeliveryInformation implements ModelObject {
         this.weight = weight;
     }
 
+    public boolean isDeliveryAddressProvided() {
+        return deliveryAddress != null;
+    }
+
     @Override
     public String toString() {
         return "DeliveryInformation{" + "\n" +
@@ -54,10 +58,6 @@ public class DeliveryInformation implements ModelObject {
     @Override
     public void saveToDatabase() {
         throw new UnsupportedOperationException("missing from this exercise - shouldn't be called from a unit test");
-    }
-
-    public boolean isReadyForHomeDelivery() {
-        return this.getType() != null && "HOME_DELIVERY".equals(this.getType()) && this.getDeliveryAddress() != null;
     }
 
 }

@@ -41,6 +41,14 @@ public class Cart implements ModelObject {
         return itemDisplay.toString();
     }
 
+    public void invalidateTickets() {
+        for (Item item : items) {
+            if (item.getType().equals("EVENT")) {
+                markAsUnavailable(item);
+            }
+        }
+    }
+
     @Override
     public void saveToDatabase() {
         throw new UnsupportedOperationException("missing from this exercise - shouldn't be called from a unit test");
