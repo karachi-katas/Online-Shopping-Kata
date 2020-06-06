@@ -24,67 +24,84 @@ public class OnlineShopping {
      * This method is called when the user changes the
      * store they are shopping at in the online shopping
      * website.
-     *
      */
     public void switchStore(Store storeToSwitchTo) {
         Cart cart = (Cart) session.get("CART");
         DeliveryInformation deliveryInformation = (DeliveryInformation) session.get("DELIVERY_INFO");
-        if (storeToSwitchTo == null) {
-            if (cart != null) {
-                cart.markEventItemsUnavailable();
-            }
-            if (deliveryInformation != null) {
-                deliveryInformation.setType("SHIPPING");
-                deliveryInformation.setPickupLocation(null);
-            }
+        if (newStoreIsCentralWarehouse(storeToSwitchTo)) {
+            markEventItemsUnavailable(cart);
+            setDeliveryInformationToShipping(deliveryInformation);
         } else {
-            if (cart != null) {
-                Items newItems = new Items();
-                long weight = 0;
-                for (Item item : cart.getItems().getItems()) {
-                    if ("EVENT".equals(item.getType())) {
-                        if (storeToSwitchTo.hasItem(item)) {
-                            cart.markAsUnavailable(item);
-                            newItems.addItem(storeToSwitchTo.getItem(item.getName()));
-                        } else {
-                            cart.markAsUnavailable(item);
-                        }
-                    } else if (!storeToSwitchTo.hasItem(item)) {
-                        cart.markAsUnavailable(item);
-                    }
-                    weight += item.getWeight();
-                }
-
-                weight -= cart.getUnavailableItems().totalWeight();
-
-                Store currentStore = (Store) session.get("STORE");
-                if (deliveryInformation != null
-                        && deliveryInformation.getType() != null
-                        && "HOME_DELIVERY".equals(deliveryInformation.getType())
-                        && deliveryInformation.getDeliveryAddress() != null) {
-                    if (!((LocationService) session.get("LOCATION_SERVICE")).isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
-                        deliveryInformation.setType("PICKUP");
-                        deliveryInformation.setPickupLocation(currentStore);
-                    } else {
-                        deliveryInformation.setTotalWeight(weight);
-                        deliveryInformation.setPickupLocation(storeToSwitchTo);
-                    }
-                } else {
-                    if (deliveryInformation != null
-                            && deliveryInformation.getDeliveryAddress() != null) {
-                        if (((LocationService) session.get("LOCATION_SERVICE")).isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
-                            deliveryInformation.setType("HOME_DELIVERY");
-                            deliveryInformation.setTotalWeight(weight);
-                            deliveryInformation.setPickupLocation(storeToSwitchTo);
-
-                        }
-                    }
-                }
-                cart.addItems(newItems);
-            }
+            switchStorePt2(storeToSwitchTo, cart, deliveryInformation);
         }
         session.put("STORE", storeToSwitchTo);
         session.saveAll();
+    }
+
+    private boolean newStoreIsCentralWarehouse(Store storeToSwitchTo) {
+        return storeToSwitchTo == null;
+    }
+
+    private void switchStorePt2(Store storeToSwitchTo, Cart cart, DeliveryInformation deliveryInformation) {
+        if (cart == null) {
+            return;
+        }
+        Items newItems = new Items();
+        long weight = 0;
+        for (Item item : cart.getItems().getItems()) {
+            if ("EVENT".equals(item.getType())) {
+                if (storeToSwitchTo.hasItem(item)) {
+                    cart.markAsUnavailable(item);
+                    newItems.addItem(storeToSwitchTo.getItem(item.getName()));
+                } else {
+                    cart.markAsUnavailable(item);
+                }
+            } else if (!storeToSwitchTo.hasItem(item)) {
+                cart.markAsUnavailable(item);
+            }
+            weight += item.getWeight();
+        }
+
+        weight -= cart.getUnavailableItems().totalWeight();
+
+        Store currentStore = (Store) session.get("STORE");
+        if (deliveryInformation != null
+                && deliveryInformation.getType() != null
+                && "HOME_DELIVERY".equals(deliveryInformation.getType())
+                && deliveryInformation.getDeliveryAddress() != null) {
+            if (!((LocationService) session.get("LOCATION_SERVICE")).isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
+                deliveryInformation.setType("PICKUP");
+                deliveryInformation.setPickupLocation(currentStore);
+            } else {
+                deliveryInformation.setTotalWeight(weight);
+                deliveryInformation.setPickupLocation(storeToSwitchTo);
+            }
+        } else {
+            if (deliveryInformation != null
+                    && deliveryInformation.getDeliveryAddress() != null) {
+                if (((LocationService) session.get("LOCATION_SERVICE")).isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
+                    deliveryInformation.setType("HOME_DELIVERY");
+                    deliveryInformation.setTotalWeight(weight);
+                    deliveryInformation.setPickupLocation(storeToSwitchTo);
+
+                }
+            }
+        }
+        cart.addItems(newItems);
+    }
+
+
+    private void setDeliveryInformationToShipping(DeliveryInformation deliveryInformation) {
+        if (deliveryInformation != null) {
+            deliveryInformation.setType("SHIPPING");
+            deliveryInformation.setPickupLocation(null);
+        }
+    }
+
+    private void markEventItemsUnavailable(Cart cart) {
+        if (cart != null) {
+            cart.markEventItemsUnavailable();
+        }
     }
 
     @Override
