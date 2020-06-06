@@ -47,26 +47,30 @@ public class OnlineShopping {
         weight = getWeight(storeToSwitchTo, cart, newItems, weight);
 
         Store currentStore = (Store) session.get("STORE");
-        if (deliveryInformation != null
-                && deliveryInformation.getType() != null
+        if (deliveryInformation != null) {
+
+            if (deliveryInformation.getType() != null
                 && "HOME_DELIVERY".equals(deliveryInformation.getType())
                 && deliveryInformation.getDeliveryAddress() != null) {
-            if (!(session.getLocationService())
-                    .isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
-                deliveryInformation.setType("PICKUP");
-                deliveryInformation.setPickupLocation(currentStore);
-            } else {
-                deliveryInformation.setTotalWeight(weight);
-                deliveryInformation.setPickupLocation(storeToSwitchTo);
-            }
-        } else {
-            if (deliveryInformation != null
-                    && deliveryInformation.getDeliveryAddress() != null) {
-                if (((LocationService) session.get("LOCATION_SERVICE")).isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
-                    deliveryInformation.setType("HOME_DELIVERY");
+                if (!(session.getLocationService())
+                    .isWithinDeliveryRange(storeToSwitchTo,
+                        deliveryInformation.getDeliveryAddress())) {
+                    deliveryInformation.setType("PICKUP");
+                    deliveryInformation.setPickupLocation(currentStore);
+                } else {
                     deliveryInformation.setTotalWeight(weight);
                     deliveryInformation.setPickupLocation(storeToSwitchTo);
+                }
+            } else {
+                if (deliveryInformation.getDeliveryAddress() != null) {
+                    if (((LocationService) session.get("LOCATION_SERVICE"))
+                        .isWithinDeliveryRange(storeToSwitchTo,
+                            deliveryInformation.getDeliveryAddress())) {
+                        deliveryInformation.setType("HOME_DELIVERY");
+                        deliveryInformation.setTotalWeight(weight);
+                        deliveryInformation.setPickupLocation(storeToSwitchTo);
 
+                    }
                 }
             }
         }
