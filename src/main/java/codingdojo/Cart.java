@@ -1,6 +1,5 @@
 package codingdojo;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -51,6 +50,14 @@ public class Cart implements ModelObject {
     }
 
     public void markAllEventItemsUnavailable() {
-        unavailableItems.addItems(items.getTypeItems("EVENT"));
+        unavailableItems.addItems(items.filterType("EVENT"));
+    }
+
+    public Collection<Item> filterItems(String type) {
+        return items.filterType("EVENT");
+    }
+
+    public Collection<Item> filterNotItems(String type) {
+        return items.filterNotType("EVENT");
     }
 }

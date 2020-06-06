@@ -31,7 +31,7 @@ public class Items {
         values.addAll(items);
     }
 
-    public Collection<Item> getTypeItems(String type){
+    public Collection<Item> filterType(String type){
         Collection<Item> items = new ArrayList<>();
 
         for (Item item : values){
@@ -43,4 +43,15 @@ public class Items {
         return items;
     }
 
+    public Collection<Item> filterNotType(String type){
+        Collection<Item> items = new ArrayList<>();
+
+        for (Item item : values){
+            if(!item.isType(type)) {
+                items.add(item);
+            }
+        }
+
+        return items;
+    }
 }
