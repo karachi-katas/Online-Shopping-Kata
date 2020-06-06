@@ -58,7 +58,7 @@ public class OnlineShopping {
             }
         }
 
-        long weight = cart.getItems().totalWeight() - cart.getUnavailableItems().totalWeight();
+        long weight = cart.weight();
 
         Store currentStore = (Store) session.get("STORE");
         if (deliveryInformation != null

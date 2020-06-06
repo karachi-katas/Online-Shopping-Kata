@@ -48,4 +48,8 @@ public class Cart implements ModelObject {
             markAsUnavailable(item);
         }
     }
+
+    public long weight() {
+        return items.totalWeight() - unavailableItems.totalWeight();
+    }
 }
