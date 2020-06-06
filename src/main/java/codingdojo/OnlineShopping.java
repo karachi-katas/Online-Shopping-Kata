@@ -58,8 +58,7 @@ public class OnlineShopping {
             }
         }
 
-        long weight = cart.getItems().totalWeight();
-        weight -= cart.getUnavailableItems().totalWeight();
+        long weight = cart.getItems().totalWeight() - cart.getUnavailableItems().totalWeight();
 
         Store currentStore = (Store) session.get("STORE");
         if (deliveryInformation != null
@@ -73,16 +72,13 @@ public class OnlineShopping {
                 deliveryInformation.setTotalWeight(weight);
                 deliveryInformation.setPickupLocation(storeToSwitchTo);
             }
-        } else {
-            if (deliveryInformation != null
-                    && deliveryInformation.getDeliveryAddress() != null) {
-                if (((LocationService) session.get("LOCATION_SERVICE")).isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
+        } else if (deliveryInformation != null
+                && deliveryInformation.getDeliveryAddress() != null
+                && ((LocationService) session.get("LOCATION_SERVICE"))
+                        .isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
                     deliveryInformation.setType("HOME_DELIVERY");
                     deliveryInformation.setTotalWeight(weight);
                     deliveryInformation.setPickupLocation(storeToSwitchTo);
-
-                }
-            }
         }
         cart.addItems(newItems);
     }
