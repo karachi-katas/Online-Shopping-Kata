@@ -35,22 +35,10 @@ public class OnlineShopping {
             session.saveAll();
             return;
         }
-        if (no(cart)) {
+        if (Cart.exists(cart)) {
             ArrayList<Item> newItems = new ArrayList<>();
             long weight = 0;
-            for (Item item : cart.getItems()) {
-                if ("EVENT".equals(item.getType())) {
-                    if (storeToSwitchTo.hasItem(item)) {
-                        cart.markAsUnavailable(item);
-                        newItems.add(storeToSwitchTo.getItem(item.getName()));
-                    } else {
-                        cart.markAsUnavailable(item);
-                    }
-                } else if (!storeToSwitchTo.hasItem(item)) {
-                    cart.markAsUnavailable(item);
-                }
-                weight += item.getWeight();
-            }
+            weight = switchItemsToNewStore(storeToSwitchTo, cart, newItems, weight);
             for (Item item: cart.getUnavailableItems()) {
                 weight -= item.getWeight();
             }
@@ -87,18 +75,25 @@ public class OnlineShopping {
         session.saveAll();
     }
 
-    private boolean no(Cart cart) {
-        return cart != null;
+    private long switchItemsToNewStore(Store storeToSwitchTo, Cart cart, ArrayList<Item> newItems,
+        long weight) {
+        for (Item item : cart.getItems()) {
+
+            if ("EVENT".equals(item.getType()) && storeToSwitchTo.hasItem(item)) {
+                cart.markAsUnavailable(item);
+                newItems.add(storeToSwitchTo.getItem(item.getName()));
+            }
+            if (!storeToSwitchTo.hasItem(item)) {
+                cart.markAsUnavailable(item);
+            }
+            weight += item.getWeight();
+        }
+        return weight;
     }
 
     private void whenStoreToSwitchIsEmpty(Cart cart, DeliveryInformation deliveryInformation) {
-        if (no(cart)) {
-            for (Item item : cart.getItems()) {
-                if ("EVENT".equals(item.getType())) {
-                    cart.markAsUnavailable(item);
-                }
-            }
-
+        if (Cart.exists(cart)) {
+            cart.markEventsAsUnavailable();
         }
         if (deliveryInformation != null) {
             deliveryInformation.setType("SHIPPING");

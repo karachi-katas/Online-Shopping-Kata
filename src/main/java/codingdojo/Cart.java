@@ -49,4 +49,16 @@ public class Cart implements ModelObject {
     public Collection<Item> getUnavailableItems() {
         return unavailableItems;
     }
+
+    public static boolean exists(Cart cart){
+        return cart !=null;
+    }
+
+    void markEventsAsUnavailable() {
+        for (Item item : getItems()) {
+            if ("EVENT".equals(item.getType())) {
+                markAsUnavailable(item);
+            }
+        }
+    }
 }
