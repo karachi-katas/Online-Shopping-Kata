@@ -1,5 +1,6 @@
 package codingdojo;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -59,11 +60,58 @@ public class OnlineShoppingTest {
         OnlineShopping shopping = new OnlineShopping(session);
 
         // TODO: make this test work
-        // shopping.switchStore(backaplan);
-        // assertEquals("DRONE", ((DeliveryInformation)session.get("DELIVERY_INFO")).getType());
-
+         shopping.switchStore(backaplan);
+         Assert.assertEquals("HOME_DELIVERY", ((DeliveryInformation)session.get("DELIVERY_INFO")).getType());
+        Assert.assertEquals(3,((Cart)session.get("CART")).unavailableItems.size());
+        Assert.assertEquals(5,((Cart)session.get("CART")).items.size());
     }
 
+    @Test
+    public void switchStoreWhenDeliveryAddressFarAway() throws Exception {
+        DeliveryInformation deliveryInfo = new DeliveryInformation("HOME_DELIVERY", nordstan, 60);
+        deliveryInfo.setDeliveryAddress("FAR_AWAY");
 
+        Cart cart = new Cart();
+        cart.addItem(cherryBloom);
+        cart.addItem(blusherBrush);
+        cart.addItem(masterclass);
+        cart.addItem(makeoverNordstan);
+
+        Session session = new Session();
+        session.put("STORE", nordstan);
+        session.put("DELIVERY_INFO", deliveryInfo);
+        session.put("CART", cart);
+        OnlineShopping shopping = new OnlineShopping(session);
+
+        // TODO: make this test work
+        shopping.switchStore(backaplan);
+        Assert.assertEquals("PICKUP", ((DeliveryInformation)session.get("DELIVERY_INFO")).getType());
+        Assert.assertEquals(3,((Cart)session.get("CART")).unavailableItems.size());
+        Assert.assertEquals(5,((Cart)session.get("CART")).items.size());
+    }
+
+    @Test
+    public void switchStoreToNullStore() throws Exception {
+        DeliveryInformation deliveryInfo = new DeliveryInformation("HOME_DELIVERY", nordstan, 60);
+        deliveryInfo.setDeliveryAddress("FAR_AWAY");
+
+        Cart cart = new Cart();
+        cart.addItem(cherryBloom);
+        cart.addItem(blusherBrush);
+        cart.addItem(masterclass);
+        cart.addItem(makeoverNordstan);
+
+        Session session = new Session();
+        session.put("STORE", nordstan);
+        session.put("DELIVERY_INFO", deliveryInfo);
+        session.put("CART", cart);
+        OnlineShopping shopping = new OnlineShopping(session);
+
+        // TODO: make this test work
+        shopping.switchStore(null);
+        Assert.assertEquals("SHIPPING", ((DeliveryInformation)session.get("DELIVERY_INFO")).getType());
+        Assert.assertEquals(2,((Cart)session.get("CART")).unavailableItems.size());
+        Assert.assertEquals(4,((Cart)session.get("CART")).items.size());
+    }
 
 }

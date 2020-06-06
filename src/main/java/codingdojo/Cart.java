@@ -43,7 +43,7 @@ public class Cart implements ModelObject {
 
     @Override
     public void saveToDatabase() {
-        throw new UnsupportedOperationException("missing from this exercise - shouldn't be called from a unit test");
+       // throw new UnsupportedOperationException("missing from this exercise - shouldn't be called from a unit test");
     }
 
     public Collection<Item> getUnavailableItems() {
