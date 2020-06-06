@@ -38,6 +38,7 @@ public class OnlineShopping {
         if (storeToSwitchTo != null && cart != null) {
             ArrayList<Item> newItems = new ArrayList<>();
             long weight = 0;
+
             for (Item item : cart.getItems()) {
 
                 if (!storeToSwitchTo.hasItem(item)) {
@@ -46,10 +47,10 @@ public class OnlineShopping {
                 else if ("EVENT".equals(item.getType())) {
                     cart.markAsUnavailable(item);
                     newItems.add(storeToSwitchTo.getItem(item.getName()));
-                } else {
-                    weight += item.getWeight();
                 }
             }
+
+            weight = cart.getItems().stream().mapToLong(Item::getWeight).sum() - cart.getUnavailableItems().stream().mapToLong(Item::getWeight).sum();
 
             Store currentStore = (Store) session.get("STORE");
             setDeliveryInformationAccordingToType(storeToSwitchTo, deliveryInformation, weight, currentStore);

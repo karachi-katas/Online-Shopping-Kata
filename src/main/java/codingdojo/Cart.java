@@ -8,8 +8,8 @@ import java.util.List;
  * While shopping online in a Store, the Cart stores the Items you intend to buy
  */
 public class Cart implements ModelObject {
-    ArrayList<Item> items = new ArrayList<>();
-    ArrayList<Item> unavailableItems = new ArrayList<>();
+    private ArrayList<Item> items = new ArrayList<>();
+    private ArrayList<Item> unavailableItems = new ArrayList<>();
     public List<Item> getItems() {
         return items;
     }
