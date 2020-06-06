@@ -44,22 +44,7 @@ public class OnlineShopping {
         }
         ArrayList<Item> newItems = new ArrayList<>();
         long weight = 0;
-        for (Item item : cart.getItems()) {
-            if ("EVENT".equals(item.getType())) {
-                if (storeToSwitchTo.hasItem(item)) {
-                    cart.markAsUnavailable(item);
-                    newItems.add(storeToSwitchTo.getItem(item.getName()));
-                } else {
-                    cart.markAsUnavailable(item);
-                }
-            } else if (!storeToSwitchTo.hasItem(item)) {
-                cart.markAsUnavailable(item);
-            }
-            weight += item.getWeight();
-        }
-        for (Item item: cart.getUnavailableItems()) {
-            weight -= item.getWeight();
-        }
+        weight = getWeight(storeToSwitchTo, cart, newItems, weight);
 
         Store currentStore = (Store) session.get("STORE");
         if (deliveryInformation != null
@@ -86,6 +71,32 @@ public class OnlineShopping {
         }
         for (Item item : newItems) {
             cart.addItem(item);
+        }
+    }
+
+    private long getWeight(Store storeToSwitchTo, Cart cart, ArrayList<Item> newItems,
+        long weight) {
+        for (Item item : cart.getItems()) {
+            if ("EVENT".equals(item.getType())) {
+                itemTypeIsEvent(storeToSwitchTo, cart, newItems, item);
+            } else if (!storeToSwitchTo.hasItem(item)) {
+                cart.markAsUnavailable(item);
+            }
+            weight += item.getWeight();
+        }
+        for (Item item: cart.getUnavailableItems()) {
+            weight -= item.getWeight();
+        }
+        return weight;
+    }
+
+    private void itemTypeIsEvent(Store storeToSwitchTo, Cart cart, ArrayList<Item> newItems,
+        Item item) {
+        if (storeToSwitchTo.hasItem(item)) {
+            cart.markAsUnavailable(item);
+            newItems.add(storeToSwitchTo.getItem(item.getName()));
+        } else {
+            cart.markAsUnavailable(item);
         }
     }
 
