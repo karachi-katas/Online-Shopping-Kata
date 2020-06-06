@@ -43,8 +43,7 @@ public class OnlineShoppingTest {
 
     @Test
     public void switchStore() throws Exception {
-        DeliveryInformation deliveryInfo = new DeliveryInformation("HOME_DELIVERY", nordstan, 60);
-        deliveryInfo.setDeliveryAddress("NEARBY");
+        DeliveryInformation deliveryInfo = new DeliveryInformation("HOME_DELIVERY", nordstan, 60, "NEARBY");
 
         Cart cart = new Cart();
         cart.addItem(cherryBloom);

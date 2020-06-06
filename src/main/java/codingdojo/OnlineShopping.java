@@ -17,11 +17,15 @@ public class OnlineShopping {
     private Session session;
     private Cart cart;
     private DeliveryInformation deliveryInformation;
+    private Store currentStore;
+    private LocationService locationService;
 
     public OnlineShopping(Session session) {
         this.session = session;
         this.cart = (Cart) session.get("CART");
         this.deliveryInformation = (DeliveryInformation) session.get("DELIVERY_INFO");
+        this.currentStore = (Store) session.get("STORE");
+        this.locationService = ((LocationService) session.get("LOCATION_SERVICE"));
     }
 
     /**
@@ -48,27 +52,20 @@ public class OnlineShopping {
                 for (Item item: cart.getUnavailableItems()) {
                     weight -= item.getWeight();
                 }
+                if (deliveryInformation != null) {
 
-                Store currentStore = (Store) session.get("STORE");
-                if (deliveryInformation != null
-                        && deliveryInformation.getType() != null
-                        && "HOME_DELIVERY".equals(deliveryInformation.getType())
-                        && deliveryInformation.getDeliveryAddress() != null) {
-                    if (!((LocationService) session.get("LOCATION_SERVICE")).isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
-                        deliveryInformation.setType("PICKUP");
-                        deliveryInformation.setPickupLocation(currentStore);
+                    if (deliveryInformation.isHome()) {
+                        if (!locationService.isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
+                            deliveryInformation = new DeliveryInformation("PICKUP", currentStore, deliveryInformation.getWeight());
+                        } else {
+                            deliveryInformation = new DeliveryInformation(deliveryInformation.getType(), storeToSwitchTo, weight);
+                        }
                     } else {
-                        deliveryInformation.setTotalWeight(weight);
-                        deliveryInformation.setPickupLocation(storeToSwitchTo);
-                    }
-                } else {
-                    if (deliveryInformation != null
-                            && deliveryInformation.getDeliveryAddress() != null) {
-                        if (((LocationService) session.get("LOCATION_SERVICE")).isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
-                            deliveryInformation.setType("HOME_DELIVERY");
-                            deliveryInformation.setTotalWeight(weight);
-                            deliveryInformation.setPickupLocation(storeToSwitchTo);
+                        if (deliveryInformation.getDeliveryAddress() != null) {
+                            if (!locationService.isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
+                                deliveryInformation = new DeliveryInformation("HOME_DELIVERY", storeToSwitchTo, weight);
 
+                            }
                         }
                     }
                 }
@@ -77,6 +74,7 @@ public class OnlineShopping {
                 }
             }
         }
+        session.put("DELIVERY_INFO", deliveryInformation);
         session.put("STORE", storeToSwitchTo);
         session.saveAll();
     }
@@ -98,8 +96,7 @@ public class OnlineShopping {
 
     private void setOrderToShippingIfNoDeliveryInformation() {
         if (deliveryInformation != null) {
-            deliveryInformation.setType("SHIPPING");
-            deliveryInformation.setPickupLocation(null);
+            deliveryInformation = new DeliveryInformation("SHIPPING", null, deliveryInformation.getWeight());
         }
     }
 

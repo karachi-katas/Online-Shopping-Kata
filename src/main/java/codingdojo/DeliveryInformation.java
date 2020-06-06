@@ -17,28 +17,23 @@ public class DeliveryInformation implements ModelObject {
         this.weight = weight;
     }
 
-    public void setType(String type) {
+    public DeliveryInformation(String type, Store pickupLocation, long weight, String deliveryAddress) {
         this.type = type;
+        this.deliveryAddress = deliveryAddress;
+        this.pickupLocation = pickupLocation;
+        this.weight = weight;
     }
 
     public String getType() {
         return type;
     }
 
-    public void setDeliveryAddress(String deliveryAddress) {
-        this.deliveryAddress = deliveryAddress;
-    }
-
     public String getDeliveryAddress() {
         return deliveryAddress;
     }
 
-    public void setPickupLocation(Store store) {
-        this.pickupLocation = store;
-    }
-
-    public void setTotalWeight(long weight) {
-        this.weight = weight;
+    public long getWeight() {
+        return weight;
     }
 
     @Override
@@ -49,6 +44,12 @@ public class DeliveryInformation implements ModelObject {
                 "pickupLocation=" + pickupLocation + "\n" +
                 "weight=" + weight + "\n" +
                 '}';
+    }
+
+    public boolean isHome() {
+        return getType() != null
+                && "HOME_DELIVERY".equals(getType())
+                && getDeliveryAddress() != null;
     }
 
     @Override
