@@ -47,24 +47,33 @@ public class OnlineShopping {
         weight = getWeight(storeToSwitchTo, cart, newItems, weight);
 
         Store currentStore = (Store) session.get("STORE");
-        if (deliveryInformation != null
-                && deliveryInformation.getDeliveryAddress() != null) {
+        if (deliveryAddressExists(deliveryInformation)) {
 
-            if ("HOME_DELIVERY".equals(deliveryInformation.getType())) {
-
-                setToHomeDelivery(storeToSwitchTo, deliveryInformation, weight);
-
-                if (!storeIsInRange(storeToSwitchTo, deliveryInformation)) {
-                    deliveryInformation.setType("PICKUP");
-                    deliveryInformation.setPickupLocation(currentStore);
-                }
-            } else {
-                setToHomeDelivery(storeToSwitchTo, deliveryInformation, weight);
-            }
+            updateDeliveryInformation(storeToSwitchTo, deliveryInformation, weight, currentStore);
         }
         for (Item item : newItems) {
             cart.addItem(item);
         }
+    }
+
+    private void updateDeliveryInformation(Store storeToSwitchTo,
+        DeliveryInformation deliveryInformation, long weight, Store currentStore) {
+        if ("HOME_DELIVERY".equals(deliveryInformation.getType())) {
+
+            setToHomeDelivery(storeToSwitchTo, deliveryInformation, weight);
+
+            if (!storeIsInRange(storeToSwitchTo, deliveryInformation)) {
+                deliveryInformation.setType("PICKUP");
+                deliveryInformation.setPickupLocation(currentStore);
+            }
+        } else {
+            setToHomeDelivery(storeToSwitchTo, deliveryInformation, weight);
+        }
+    }
+
+    private boolean deliveryAddressExists(DeliveryInformation deliveryInformation) {
+        return deliveryInformation != null
+                && deliveryInformation.getDeliveryAddress() != null;
     }
 
     private void setToHomeDelivery(Store storeToSwitchTo, DeliveryInformation deliveryInformation,
