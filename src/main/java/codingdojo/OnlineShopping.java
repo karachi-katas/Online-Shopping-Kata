@@ -46,9 +46,8 @@ public class OnlineShopping {
         long weight = 0;
         weight = getWeight(storeToSwitchTo, cart, newItems, weight);
 
-        Store currentStore = (Store) session.get("STORE");
         if (deliveryAddressExists(deliveryInformation)) {
-
+            Store currentStore = session.getStore();
             updateDeliveryInformation(storeToSwitchTo, deliveryInformation, weight, currentStore);
         }
         for (Item item : newItems) {

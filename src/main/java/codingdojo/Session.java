@@ -23,6 +23,10 @@ public class Session {
         return (LocationService) get("LOCATION_SERVICE");
     }
 
+    public Store getStore() {
+        return (Store) get("STORE");
+    }
+
     public ModelObject get(String key) {
         return this.session.get(key);
     }
