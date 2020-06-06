@@ -50,8 +50,9 @@ public class OnlineShopping {
         if (deliveryInformation != null) {
 
             if (deliveryInformation.getType() != null
-                && "HOME_DELIVERY".equals(deliveryInformation.getType())
-                && deliveryInformation.getDeliveryAddress() != null) {
+                    && "HOME_DELIVERY".equals(deliveryInformation.getType())
+                    && deliveryInformation.getDeliveryAddress() != null) {
+
                 if (!(session.getLocationService())
                     .isWithinDeliveryRange(storeToSwitchTo,
                         deliveryInformation.getDeliveryAddress())) {
@@ -63,8 +64,7 @@ public class OnlineShopping {
                 }
             } else {
                 if (deliveryInformation.getDeliveryAddress() != null) {
-                    if (((LocationService) session.get("LOCATION_SERVICE"))
-                        .isWithinDeliveryRange(storeToSwitchTo,
+                    if (session.getLocationService().isWithinDeliveryRange(storeToSwitchTo,
                             deliveryInformation.getDeliveryAddress())) {
                         deliveryInformation.setType("HOME_DELIVERY");
                         deliveryInformation.setTotalWeight(weight);
