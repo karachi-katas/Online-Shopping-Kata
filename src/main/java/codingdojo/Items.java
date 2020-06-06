@@ -32,4 +32,10 @@ public class Items  implements Iterable<Item>{
     public Iterator<Item> iterator() {
         return items.iterator();
     }
+
+    public Long totalWeight() {
+        return items.stream()
+          .mapToLong(Item::getWeight)
+          .sum();
+    }
 }

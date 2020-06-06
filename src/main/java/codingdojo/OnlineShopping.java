@@ -39,13 +39,13 @@ public class OnlineShopping {
             }
         } else {
             if (cart != null) {
-                ArrayList<Item> newItems = new ArrayList<>();
+                Items newItems = new Items();
                 long weight = 0;
                 for (Item item : cart.getItems().getItems()) {
                     if ("EVENT".equals(item.getType())) {
                         if (storeToSwitchTo.hasItem(item)) {
                             cart.markAsUnavailable(item);
-                            newItems.add(storeToSwitchTo.getItem(item.getName()));
+                            newItems.addItem(storeToSwitchTo.getItem(item.getName()));
                         } else {
                             cart.markAsUnavailable(item);
                         }
@@ -54,9 +54,8 @@ public class OnlineShopping {
                     }
                     weight += item.getWeight();
                 }
-                for (Item item: cart.getUnavailableItems().getItems()) {
-                    weight -= item.getWeight();
-                }
+
+                weight -= cart.getUnavailableItems().totalWeight();
 
                 Store currentStore = (Store) session.get("STORE");
                 if (deliveryInformation != null
@@ -81,9 +80,7 @@ public class OnlineShopping {
                         }
                     }
                 }
-                for (Item item : newItems) {
-                    cart.addItem(item);
-                }
+                cart.addItems(newItems);
             }
         }
         session.put("STORE", storeToSwitchTo);
