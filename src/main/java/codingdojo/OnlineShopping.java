@@ -29,70 +29,79 @@ public class OnlineShopping {
     public void switchStore(Store storeToSwitchTo) {
         Cart cart = (Cart) session.get("CART");
         DeliveryInformation deliveryInformation = (DeliveryInformation) session.get("DELIVERY_INFO");
-        if (storeToSwitchTo == null) {
-            if (cart != null) {
-                for (Item item : cart.getItems()) {
-                    if ("EVENT".equals(item.getType())) {
-                        cart.markAsUnavailable(item);
-                    }
-                }
 
-            }
-            if (deliveryInformation != null) {
-                deliveryInformation.setType("SHIPPING");
-                deliveryInformation.setPickupLocation(null);
-            }
-        } else {
-            if (cart != null) {
-                ArrayList<Item> newItems = new ArrayList<>();
-                long weight = 0;
-                for (Item item : cart.getItems()) {
-                    if ("EVENT".equals(item.getType())) {
-                        if (storeToSwitchTo.hasItem(item)) {
-                            cart.markAsUnavailable(item);
-                            newItems.add(storeToSwitchTo.getItem(item.getName()));
-                        } else {
-                            cart.markAsUnavailable(item);
-                        }
-                    } else if (!storeToSwitchTo.hasItem(item)) {
-                        cart.markAsUnavailable(item);
-                    }
+        whenSwitchingToNullStoreMarkTicketsUnavailable(storeToSwitchTo, cart);
+
+        shipItemIfDeliverInformationGivenAndStoreIsNull(storeToSwitchTo, deliveryInformation);
+
+
+        if (storeToSwitchTo != null && cart != null) {
+            ArrayList<Item> newItems = new ArrayList<>();
+            long weight = 0;
+            for (Item item : cart.getItems()) {
+
+                if (!storeToSwitchTo.hasItem(item)) {
+                    cart.markAsUnavailable(item);
+                }
+                else if ("EVENT".equals(item.getType())) {
+                    cart.markAsUnavailable(item);
+                    newItems.add(storeToSwitchTo.getItem(item.getName()));
+                } else {
                     weight += item.getWeight();
                 }
-                for (Item item: cart.getUnavailableItems()) {
-                    weight -= item.getWeight();
-                }
 
-                Store currentStore = (Store) session.get("STORE");
+
+            }
+
+            Store currentStore = (Store) session.get("STORE");
+            if (deliveryInformation != null
+                    && deliveryInformation.getType() != null
+                    && "HOME_DELIVERY".equals(deliveryInformation.getType())
+                    && deliveryInformation.getDeliveryAddress() != null) {
+                if (!((LocationService) session.get("LOCATION_SERVICE")).isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
+                    deliveryInformation.setType("PICKUP");
+                    deliveryInformation.setPickupLocation(currentStore);
+                }
+                if (((LocationService) session.get("LOCATION_SERVICE")).isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())){
+                    deliveryInformation.setTotalWeight(weight);
+                    deliveryInformation.setPickupLocation(storeToSwitchTo);
+                }
+            } else {
                 if (deliveryInformation != null
-                        && deliveryInformation.getType() != null
-                        && "HOME_DELIVERY".equals(deliveryInformation.getType())
                         && deliveryInformation.getDeliveryAddress() != null) {
-                    if (!((LocationService) session.get("LOCATION_SERVICE")).isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
-                        deliveryInformation.setType("PICKUP");
-                        deliveryInformation.setPickupLocation(currentStore);
-                    } else {
+                    if (((LocationService) session.get("LOCATION_SERVICE")).isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
+                        deliveryInformation.setType("HOME_DELIVERY");
                         deliveryInformation.setTotalWeight(weight);
                         deliveryInformation.setPickupLocation(storeToSwitchTo);
-                    }
-                } else {
-                    if (deliveryInformation != null
-                            && deliveryInformation.getDeliveryAddress() != null) {
-                        if (((LocationService) session.get("LOCATION_SERVICE")).isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
-                            deliveryInformation.setType("HOME_DELIVERY");
-                            deliveryInformation.setTotalWeight(weight);
-                            deliveryInformation.setPickupLocation(storeToSwitchTo);
 
-                        }
                     }
                 }
-                for (Item item : newItems) {
-                    cart.addItem(item);
+            }
+            for (Item item : newItems) {
+                cart.addItem(item);
+            }
+        }
+
+
+        session.put("STORE", storeToSwitchTo);
+        session.saveAll();
+    }
+
+    private void shipItemIfDeliverInformationGivenAndStoreIsNull(Store storeToSwitchTo, DeliveryInformation deliveryInformation) {
+        if (storeToSwitchTo == null && deliveryInformation != null) {
+            deliveryInformation.setType("SHIPPING");
+            deliveryInformation.setPickupLocation(null);
+        }
+    }
+
+    private void whenSwitchingToNullStoreMarkTicketsUnavailable(Store storeToSwitchTo, Cart cart) {
+        if (storeToSwitchTo == null && cart != null) {
+            for (Item item : cart.getItems()) {
+                if ("EVENT".equals(item.getType())) {
+                    cart.markAsUnavailable(item);
                 }
             }
         }
-        session.put("STORE", storeToSwitchTo);
-        session.saveAll();
     }
 
     @Override
