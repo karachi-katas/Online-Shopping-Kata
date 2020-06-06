@@ -47,21 +47,18 @@ public class OnlineShopping {
             return;
         }
         Items newItems = new Items();
-        long weight = 0;
-        for (Item item : cart.getItems().getItems()) {
+        for (Item item : cart.getItems()) {
             if ("EVENT".equals(item.getType())) {
+                cart.markAsUnavailable(item);
                 if (storeToSwitchTo.hasItem(item)) {
-                    cart.markAsUnavailable(item);
                     newItems.addItem(storeToSwitchTo.getItem(item.getName()));
-                } else {
-                    cart.markAsUnavailable(item);
                 }
             } else if (!storeToSwitchTo.hasItem(item)) {
                 cart.markAsUnavailable(item);
             }
-            weight += item.getWeight();
         }
 
+        long weight = cart.getItems().totalWeight();
         weight -= cart.getUnavailableItems().totalWeight();
 
         Store currentStore = (Store) session.get("STORE");
