@@ -35,8 +35,8 @@ public class OnlineShopping {
      *
      */
     public void switchStore(Store storeToSwitchTo) {
-        if (storeToSwitchTo == null) {
-            handleStoreEvents();
+        if (isCentralWarehouse(storeToSwitchTo)) {
+            handleStoreEventsWhenCentralWarehouse();
         } else {
             if (cart != null) {
                 ArrayList<Item> newItems = new ArrayList<>();
@@ -53,30 +53,21 @@ public class OnlineShopping {
                     weight -= item.getWeight();
                 }
                 if (deliveryInformation != null) {
-
-                    if (deliveryInformation.isHome()) {
-                        if (!locationService.isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
-                            deliveryInformation = new DeliveryInformation("PICKUP", currentStore, deliveryInformation.getWeight());
-                        } else {
-                            deliveryInformation = new DeliveryInformation(deliveryInformation.getType(), storeToSwitchTo, weight);
-                        }
-                    } else {
-                        if (deliveryInformation.getDeliveryAddress() != null) {
-                            if (!locationService.isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
-                                deliveryInformation = new DeliveryInformation("HOME_DELIVERY", storeToSwitchTo, weight);
-
-                            }
-                        }
-                    }
+                    deliveryInformation.updateDeliveryInformation(storeToSwitchTo, currentStore, weight, locationService);
                 }
                 for (Item item : newItems) {
                     cart.addItem(item);
                 }
             }
         }
+
         session.put("DELIVERY_INFO", deliveryInformation);
         session.put("STORE", storeToSwitchTo);
         session.saveAll();
+    }
+
+    private boolean isCentralWarehouse(Store storeToSwitchTo) {
+        return storeToSwitchTo == null;
     }
 
     private void handleEventWhenStoreSwitched(Store storeToSwitchTo, ArrayList<Item> newItems, Item item) {
@@ -87,7 +78,7 @@ public class OnlineShopping {
         }
     }
 
-    private void handleStoreEvents() {
+    private void handleStoreEventsWhenCentralWarehouse() {
         if (cart != null) {
             markStoreEventsUnavailable();
         }

@@ -1,5 +1,7 @@
 package codingdojo;
 
+import javax.xml.stream.Location;
+
 /**
  * This class contains the information about how the customer would like to
  * have the contents of their shopping cart delivered to them.
@@ -57,4 +59,24 @@ public class DeliveryInformation implements ModelObject {
         throw new UnsupportedOperationException("missing from this exercise - shouldn't be called from a unit test");
     }
 
+    void updateDeliveryInformation(Store storeToSwitchTo, Store currentStore, long weight, LocationService locationService) {
+        if (isHome()) {
+            if (!locationService.isWithinDeliveryRange(storeToSwitchTo, getDeliveryAddress())) {
+                this.type = "PICKUP";
+                this.pickupLocation = currentStore;
+            } else {
+                this.pickupLocation = storeToSwitchTo;
+                this.weight = weight;
+            }
+        } else {
+            if (getDeliveryAddress() != null) {
+                if (!locationService.isWithinDeliveryRange(storeToSwitchTo, getDeliveryAddress())) {
+                    this.type = "HOME_DELIVERY";
+                    this.pickupLocation = storeToSwitchTo;
+                    this.weight = weight;
+
+                }
+            }
+        }
+    }
 }
