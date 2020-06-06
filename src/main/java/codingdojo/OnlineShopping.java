@@ -50,8 +50,7 @@ public class OnlineShopping {
         if (deliveryInformation != null
                 && deliveryInformation.getDeliveryAddress() != null) {
 
-            if (deliveryInformation.getType() != null
-                    && "HOME_DELIVERY".equals(deliveryInformation.getType())) {
+            if ("HOME_DELIVERY".equals(deliveryInformation.getType())) {
 
                 if (!(session.getLocationService())
                     .isWithinDeliveryRange(storeToSwitchTo,
