@@ -24,10 +24,6 @@ public class Items  implements Iterable<Item>{
         return itemDisplay.toString();
     }
 
-    public ArrayList<Item> getItems() {
-        return items;
-    }
-
     @Override
     public Iterator<Item> iterator() {
         return items.iterator();
