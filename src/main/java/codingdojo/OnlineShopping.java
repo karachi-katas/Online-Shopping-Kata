@@ -52,24 +52,28 @@ public class OnlineShopping {
 
             if ("HOME_DELIVERY".equals(deliveryInformation.getType())) {
 
-                if (storeIsInRange(storeToSwitchTo, deliveryInformation)) {
-                    deliveryInformation.setTotalWeight(weight);
-                    deliveryInformation.setPickupLocation(storeToSwitchTo);
-                } else {
+                setToHomeDelivery(storeToSwitchTo, deliveryInformation, weight);
+
+                if (!storeIsInRange(storeToSwitchTo, deliveryInformation)) {
                     deliveryInformation.setType("PICKUP");
                     deliveryInformation.setPickupLocation(currentStore);
                 }
             } else {
-                if (storeIsInRange(storeToSwitchTo, deliveryInformation)) {
-                    deliveryInformation.setType("HOME_DELIVERY");
-                    deliveryInformation.setTotalWeight(weight);
-                    deliveryInformation.setPickupLocation(storeToSwitchTo);
-
-                }
+                setToHomeDelivery(storeToSwitchTo, deliveryInformation, weight);
             }
         }
         for (Item item : newItems) {
             cart.addItem(item);
+        }
+    }
+
+    private void setToHomeDelivery(Store storeToSwitchTo, DeliveryInformation deliveryInformation,
+        long weight) {
+        if (storeIsInRange(storeToSwitchTo, deliveryInformation)) {
+            deliveryInformation.setType("HOME_DELIVERY");
+            deliveryInformation.setTotalWeight(weight);
+            deliveryInformation.setPickupLocation(storeToSwitchTo);
+
         }
     }
 
