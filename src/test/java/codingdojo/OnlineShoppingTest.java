@@ -1,7 +1,10 @@
 package codingdojo;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class OnlineShoppingTest {
 
@@ -53,6 +56,7 @@ public class OnlineShoppingTest {
         cart.addItem(makeoverNordstan);
 
         Session session = new Session();
+
         session.put("STORE", nordstan);
         session.put("DELIVERY_INFO", deliveryInfo);
         session.put("CART", cart);
@@ -63,6 +67,34 @@ public class OnlineShoppingTest {
         // assertEquals("DRONE", ((DeliveryInformation)session.get("DELIVERY_INFO")).getType());
 
     }
+
+    @Test
+    public void switchStoreWhenStoreIsNull() throws Exception {
+        DeliveryInformation deliveryInfo = new DeliveryInformation("HOME_DELIVERY", nordstan, 60);
+        deliveryInfo.setDeliveryAddress("NEARBY");
+
+        Cart cart = new Cart();
+        cart.addItem(cherryBloom);
+        cart.addItem(blusherBrush);
+        cart.addItem(masterclass);
+        cart.addItem(makeoverNordstan);
+
+        Session session = new Session();
+        session.put("STORE", nordstan);
+        session.put("DELIVERY_INFO", deliveryInfo);
+        session.put("CART", cart);
+        OnlineShopping shopping = new OnlineShopping(session);
+
+
+
+         shopping.switchStore(null);
+         assertEquals("SHIPPING", ((DeliveryInformation)session.get("DELIVERY_INFO")).getType());
+        Assert.assertTrue(((Cart) session.get("CART")).unavailableItems.contains(masterclass));
+        Assert.assertTrue(((Cart) session.get("CART")).unavailableItems.contains(makeoverNordstan));
+
+    }
+
+
 
 
 

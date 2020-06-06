@@ -3,6 +3,7 @@ package codingdojo;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * While shopping online in a Store, the Cart stores the Items you intend to buy
@@ -13,7 +14,19 @@ public class Cart implements ModelObject {
     public List<Item> getItems() {
         return items;
     }
+
+    public  List<Item> getItemsByType(String type){
+        return items.stream().filter(item -> type.equals(item.type)).collect(Collectors.toList());
+    }
+
+    public void setItemsUnavailable(String type){
+        for (Item item : getItemsByType(type)) {
+            markAsUnavailable(item);
+        }
+    }
+
     public void addItem(Item item) {
+
         this.items.add(item);
     }
     public void addItems(Collection<Item> items) {
@@ -21,6 +34,7 @@ public class Cart implements ModelObject {
     }
 
     public void markAsUnavailable(Item item) {
+       // this.items.remove(item);
         this.unavailableItems.add(item);
     }
 
@@ -43,7 +57,7 @@ public class Cart implements ModelObject {
 
     @Override
     public void saveToDatabase() {
-        throw new UnsupportedOperationException("missing from this exercise - shouldn't be called from a unit test");
+        //throw new UnsupportedOperationException("missing from this exercise - shouldn't be called from a unit test");
     }
 
     public Collection<Item> getUnavailableItems() {
