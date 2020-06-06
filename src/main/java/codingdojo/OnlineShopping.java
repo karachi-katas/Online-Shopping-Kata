@@ -39,15 +39,10 @@ public class OnlineShopping {
                 long weight = 0;
                 for (Item item : cart.getItems()) {
 
-                    if (isItemEventOrItemNotPresentInNewStore(storeToSwitchTo, item)) {
-                        cart.markAsUnavailable(item);
+                    if (item.isEvent()) {
+                        handleEventWhenStoreSwitched(storeToSwitchTo, newItems, item);
                     }
 
-                    if (item.isEvent()) {
-                        if (storeToSwitchTo.hasItem(item)) {
-                            newItems.add(storeToSwitchTo.getItem(item.getName()));
-                        }
-                    }
                     weight += item.getWeight();
                 }
                 for (Item item: cart.getUnavailableItems()) {
@@ -86,8 +81,12 @@ public class OnlineShopping {
         session.saveAll();
     }
 
-    private boolean isItemEventOrItemNotPresentInNewStore(Store storeToSwitchTo, Item item) {
-        return item.isEvent() || !storeToSwitchTo.hasItem(item);
+    private void handleEventWhenStoreSwitched(Store storeToSwitchTo, ArrayList<Item> newItems, Item item) {
+        if (storeToSwitchTo.hasItem(item)) {
+            newItems.add(storeToSwitchTo.getItem(item.getName()));
+        } else {
+            cart.markAsUnavailable(item);
+        }
     }
 
     private void handleStoreEvents() {
