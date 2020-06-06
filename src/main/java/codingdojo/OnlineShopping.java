@@ -15,9 +15,13 @@ import java.util.ArrayList;
 public class OnlineShopping {
 
     private Session session;
+    private Cart cart;
+    private DeliveryInformation deliveryInformation;
 
     public OnlineShopping(Session session) {
         this.session = session;
+        this.cart = (Cart) session.get("CART");
+        this.deliveryInformation = (DeliveryInformation) session.get("DELIVERY_INFO");
     }
 
     /**
@@ -27,21 +31,8 @@ public class OnlineShopping {
      *
      */
     public void switchStore(Store storeToSwitchTo) {
-        Cart cart = (Cart) session.get("CART");
-        DeliveryInformation deliveryInformation = (DeliveryInformation) session.get("DELIVERY_INFO");
         if (storeToSwitchTo == null) {
-            if (cart != null) {
-                for (Item item : cart.getItems()) {
-                    if ("EVENT".equals(item.getType())) {
-                        cart.markAsUnavailable(item);
-                    }
-                }
-
-            }
-            if (deliveryInformation != null) {
-                deliveryInformation.setType("SHIPPING");
-                deliveryInformation.setPickupLocation(null);
-            }
+            handleStoreEvents();
         } else {
             if (cart != null) {
                 ArrayList<Item> newItems = new ArrayList<>();
@@ -93,6 +84,21 @@ public class OnlineShopping {
         }
         session.put("STORE", storeToSwitchTo);
         session.saveAll();
+    }
+
+    private void handleStoreEvents() {
+        if (cart != null) {
+            for (Item item : cart.getItems()) {
+                if ("EVENT".equals(item.getType())) {
+                    cart.markAsUnavailable(item);
+                }
+            }
+
+        }
+        if (deliveryInformation != null) {
+            deliveryInformation.setType("SHIPPING");
+            deliveryInformation.setPickupLocation(null);
+        }
     }
 
     @Override
