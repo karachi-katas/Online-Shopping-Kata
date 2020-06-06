@@ -13,4 +13,17 @@ public class Items {
         this.items.addAll(items.items);
     }
 
+    @Override
+    public String toString() {
+        StringBuffer itemDisplay = new StringBuffer("\n");
+        for (Item item : items) {
+            itemDisplay.append(item.toString());
+            itemDisplay.append("\n");
+        }
+        return itemDisplay.toString();
+    }
+
+    public ArrayList<Item> getItems() {
+        return items;
+    }
 }
