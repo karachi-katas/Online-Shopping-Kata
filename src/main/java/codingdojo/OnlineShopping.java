@@ -88,16 +88,24 @@ public class OnlineShopping {
 
     private void handleStoreEvents() {
         if (cart != null) {
-            for (Item item : cart.getItems()) {
-                if ("EVENT".equals(item.getType())) {
-                    cart.markAsUnavailable(item);
-                }
-            }
+            markStoreEventsUnavailable();
 
         }
+        setOrderToShippingIfNoDeliveryInformation();
+    }
+
+    private void setOrderToShippingIfNoDeliveryInformation() {
         if (deliveryInformation != null) {
             deliveryInformation.setType("SHIPPING");
             deliveryInformation.setPickupLocation(null);
+        }
+    }
+
+    private void markStoreEventsUnavailable() {
+        for (Item item : cart.getItems()) {
+            if ("EVENT".equals(item.getType())) {
+                cart.markAsUnavailable(item);
+            }
         }
     }
 
