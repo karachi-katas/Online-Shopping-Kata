@@ -27,13 +27,15 @@ public class OnlineShopping {
      *
      */
     public void switchStore(Store storeToSwitchTo) {
-        Cart cart = (Cart) session.get("CART");
-        DeliveryInformation deliveryInformation = (DeliveryInformation) session.get("DELIVERY_INFO");
+        Cart cart = session.getCart();
+        DeliveryInformation deliveryInformation = session.getDeliveryInfo();
+
         if (storeToSwitchTo == null) {
             storeToSwitchIsNull(cart, deliveryInformation);
         } else {
             storeToSwitchToIsNotNull(storeToSwitchTo, cart, deliveryInformation);
         }
+
         session.put("STORE", storeToSwitchTo);
         session.saveAll();
     }
@@ -57,6 +59,9 @@ public class OnlineShopping {
 
     private void updateDeliveryInformation(Store storeToSwitchTo,
         DeliveryInformation deliveryInformation, long weight, Store currentStore) {
+
+        // add drone checks here...
+
         if ("HOME_DELIVERY".equals(deliveryInformation.getType())) {
 
             setToHomeDelivery(storeToSwitchTo, deliveryInformation, weight);

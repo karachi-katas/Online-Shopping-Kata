@@ -27,6 +27,14 @@ public class Session {
         return (Store) get("STORE");
     }
 
+    public Cart getCart() {
+        return (Cart) get("CART");
+    }
+
+    public DeliveryInformation getDeliveryInfo() {
+        return (DeliveryInformation) session.get("DELIVERY_INFO");
+    }
+
     public ModelObject get(String key) {
         return this.session.get(key);
     }
