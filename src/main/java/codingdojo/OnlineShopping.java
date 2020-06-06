@@ -51,7 +51,8 @@ public class OnlineShopping {
                 && deliveryInformation.getType() != null
                 && "HOME_DELIVERY".equals(deliveryInformation.getType())
                 && deliveryInformation.getDeliveryAddress() != null) {
-            if (!((LocationService) session.get("LOCATION_SERVICE")).isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
+            if (!(session.getLocationService())
+                    .isWithinDeliveryRange(storeToSwitchTo, deliveryInformation.getDeliveryAddress())) {
                 deliveryInformation.setType("PICKUP");
                 deliveryInformation.setPickupLocation(currentStore);
             } else {

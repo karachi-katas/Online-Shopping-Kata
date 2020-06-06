@@ -19,6 +19,10 @@ public class Session {
         session.put("LOCATION_SERVICE", new LocationService());
     }
 
+    public LocationService getLocationService() {
+        return (LocationService) get("LOCATION_SERVICE");
+    }
+
     public ModelObject get(String key) {
         return this.session.get(key);
     }
