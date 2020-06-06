@@ -30,19 +30,13 @@ public class OnlineShopping {
         Cart cart = (Cart) session.get("CART");
         DeliveryInformation deliveryInformation = (DeliveryInformation) session.get("DELIVERY_INFO");
         if (storeToSwitchTo == null) {
-            if (cart != null) {
-                for (Item item : cart.getItems()) {
-                    if ("EVENT".equals(item.getType())) {
-                        cart.markAsUnavailable(item);
-                    }
-                }
-
-            }
+            cart.markAllEventItemsUnavailable();
             if (deliveryInformation != null) {
                 deliveryInformation.setType("SHIPPING");
                 deliveryInformation.setPickupLocation(null);
             }
-        } else {
+        }
+        else {
             if (cart != null) {
                 ArrayList<Item> newItems = new ArrayList<>();
                 long weight = 0;

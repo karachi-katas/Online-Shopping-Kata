@@ -49,4 +49,12 @@ public class Cart implements ModelObject {
     public Collection<Item> getUnavailableItems() {
         return unavailableItems;
     }
+
+    public void markAllEventItemsUnavailable() {
+        for (Item item : items) {
+            if (item.isType("EVENT")) {
+                markAsUnavailable(item);
+            }
+        }
+    }
 }
