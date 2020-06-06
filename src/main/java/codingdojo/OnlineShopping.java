@@ -38,12 +38,10 @@ public class OnlineShopping {
                 ArrayList<Item> newItems = new ArrayList<>();
                 long weight = 0;
                 for (Item item : cart.getItems()) {
-                    if ("EVENT".equals(item.getType())) {
+                    if (item.isEvent()) {
+                        cart.markAsUnavailable(item);
                         if (storeToSwitchTo.hasItem(item)) {
-                            cart.markAsUnavailable(item);
                             newItems.add(storeToSwitchTo.getItem(item.getName()));
-                        } else {
-                            cart.markAsUnavailable(item);
                         }
                     } else if (!storeToSwitchTo.hasItem(item)) {
                         cart.markAsUnavailable(item);
@@ -89,7 +87,6 @@ public class OnlineShopping {
     private void handleStoreEvents() {
         if (cart != null) {
             markStoreEventsUnavailable();
-
         }
         setOrderToShippingIfNoDeliveryInformation();
     }
@@ -103,7 +100,7 @@ public class OnlineShopping {
 
     private void markStoreEventsUnavailable() {
         for (Item item : cart.getItems()) {
-            if ("EVENT".equals(item.getType())) {
+            if (item.isEvent()) {
                 cart.markAsUnavailable(item);
             }
         }
