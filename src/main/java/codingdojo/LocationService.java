@@ -19,4 +19,6 @@ public class LocationService implements ModelObject {
         throw new UnsupportedOperationException("missing from this exercise - shouldn't be called from a unit test");
     }
 
+
+
 }

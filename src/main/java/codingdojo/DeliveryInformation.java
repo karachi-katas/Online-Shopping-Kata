@@ -56,4 +56,8 @@ public class DeliveryInformation implements ModelObject {
         throw new UnsupportedOperationException("missing from this exercise - shouldn't be called from a unit test");
     }
 
+    public boolean isReadyForHomeDelivery() {
+        return this.getType() != null && "HOME_DELIVERY".equals(this.getType()) && this.getDeliveryAddress() != null;
+    }
+
 }
